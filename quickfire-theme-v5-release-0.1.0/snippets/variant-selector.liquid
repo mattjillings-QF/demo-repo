@@ -1,0 +1,604 @@
+{%- liquid
+  if section.id != blank
+    assign section_id = section.id
+  else
+    assign section_id = section_id
+  endif
+
+  assign gap = gap | default: 'g-4'
+
+  if color_swatch_size == blank
+    assign color_swatch_size = '33'
+  endif
+-%}
+
+{%- unless product.has_only_default_variant -%}
+  <div
+    class="variant-selector-wrapper flex flex-col {{ gap }} {{ option_type }}-selector-type {{ additional_classes }}"
+    {{ shopify_attributes }}
+  >
+    {%- if option_type == 'radio' -%}
+      <div class="option-radios-wrapper flex flex-col g-3">
+        {%- for option in product.options_with_values -%}
+          {%- if option.name == 'Colour' -%}
+            <div
+              class="radio-option swatch-radio flex flex-col g-1 swatch"
+              data-option="{{ forloop.index }}"
+            >
+              {%- unless card -%}
+                <div class="option-name bold">
+                  <span>
+                    {{- option.name -}}
+                    :</span
+                  >
+                  <span variant-colour-name style="font-weight: var(--body-font-weight)"></span>
+                </div>
+              {%- endunless -%}
+              <div class="variant-radios flex flex-wrap g-2">
+                {%- for value in option.values -%}
+                  {%- liquid
+                    assign is_selected = false
+                    # Check if this option value matches the selected variant's option
+                    assign option_index = forloop.parentloop.index0
+                    if product.selected_or_first_available_variant.options[option_index] == value
+                      assign is_selected = true
+                    endif
+                  -%}
+                  <div class="variant-wrapper border-radius-circle relative overflow-hidden cursor-pointer">
+                    <input
+                      class="visually-hidden"
+                      data-color-variant-id="{{ value.variant.id }}"
+                      data-img="{{ value.variant.image | image_url: width: 400 }}"
+                      type="radio"
+                      name="{{ option.name | escape }}-{{ product.id }}-{{ section.id }}"
+                      value="{{ value | escape }}"
+                      data-index="{{ forloop.index0 }}"
+                      data-value="{{ value | escape | downcase }}"
+                      id="value-{{ value.id }}-{{ product.id }}-{{ section.id }}"
+                      {% if is_selected %}
+                        checked
+                      {% endif %}
+                    >
+                    <label
+                      class="cursor-pointer flex w-100 h-100"
+                      style="width: {{ color_swatch_size }}px;height: {{ color_swatch_size }}px;background-color: {{ value.swatch.color }};"
+                      for="value-{{ value.id }}-{{ product.id }}-{{ section.id }}"
+                    >
+                      <span class="visually-hidden">{{ value }}</span>
+                    </label>
+                  </div>
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- else -%}
+            <div
+              class="radio-option type-radio flex flex-col g-1"
+              data-option="{{ forloop.index }}"
+            >
+              {%- unless card -%}
+                <div class="option-name bold flex flex-between">
+                  <span>
+                    {{- option.name -}}
+                    :</span
+                  >
+                  <span variant-colour-name></span>
+                  {%- if option.name == 'Size'
+                    and card != true
+                    and settings.size_guide_page != blank
+                  -%}
+                    {% comment %} <a href="" class="size-guide" style="font-weight: 500">{{ 'products.product.size_guide' | t }}</a> {% endcomment %}
+                    <button
+                      type="button"
+                      data-modal-trigger="size-guide-id"
+                      class="medium underline"
+                    >
+                      {{ 'products.product.size_guide' | t }}
+                    </button>
+                  {%- endif -%}
+                </div>
+              {%- endunless -%}
+              <div class="variant-radios flex flex-wrap g-2">
+                {%- for value in option.values -%}
+                  {%- liquid
+                    assign is_selected = false
+                    # Check if this option value matches the selected variant's option
+                    assign option_index = forloop.parentloop.index0
+                    if product.selected_or_first_available_variant.options[option_index] == value
+                      assign is_selected = true
+                    endif
+                  -%}
+                  <div class="variant-wrapper relative overflow-hidden">
+                    <input
+                      class="visually-hidden"
+                      type="radio"
+                      name="{{ option.name | escape }}-{{ product.id }}-{{ section.id }}"
+                      value="{{ value | escape }}"
+                      data-index="{{ forloop.index0 }}"
+                      data-value="{{ value | escape | downcase }}"
+                      id="value-{{ value.id }}-{{ product.id }}-{{ section.id }}"
+                      {% if is_selected %}
+                        checked
+                      {% endif %}
+                      data-price="{{ value.variant.price }}"
+                    >
+                    <label
+                      class="cursor-pointer"
+                      for="value-{{ value.id }}-{{ product.id }}-{{ section.id }}"
+                    >
+                      {{ value }}
+                    </label>
+                  </div>
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <div class="color-dropdown flex flex-col g-2 w-100">
+        {%- for option in product.options_with_values -%}
+          {%- if option.name == 'Colour' -%}
+            <div
+              class="radio-option swatch-radio flex flex-col g-1 swatch"
+              data-option="{{ forloop.index }}"
+            >
+              {%- unless card -%}
+                <div class="option-name bold">
+                  <span>
+                    {{- option.name -}}
+                    :</span
+                  >
+                  <span variant-colour-name style="font-weight: var(--body-font-weight)"></span>
+                </div>
+              {%- endunless -%}
+              <div class="variant-radios flex flex-wrap g-2">
+                {%- for value in option.values -%}
+                  {%- liquid
+                    assign is_selected = false
+                    # Check if this option value matches the selected variant's option
+                    assign option_index = forloop.parentloop.index0
+                    if product.selected_or_first_available_variant.options[option_index] == value
+                      assign is_selected = true
+                    endif
+                  -%}
+                  <div class="variant-wrapper border-radius-circle relative overflow-hidden cursor-pointer">
+                    <input
+                      class="visually-hidden"
+                      data-color-variant-id="{{ value.variant.id }}"
+                      data-img="{{ value.variant.image | image_url: width: 400 }}"
+                      type="radio"
+                      name="{{ option.name | escape }}-{{ product.id }}-{{ section.id }}"
+                      value="{{ value | escape }}"
+                      data-index="{{ forloop.index0 }}"
+                      data-value="{{ value | escape | downcase }}"
+                      id="value-{{ value.id }}-{{ product.id }}-{{ section.id }}"
+                      {% if is_selected %}
+                        checked
+                      {% endif %}
+                    >
+                    <label
+                      class="cursor-pointer flex w-100 h-100"
+                      style="width: {{ color_swatch_size }}px;height: {{ color_swatch_size }}px;background-color: {{ value.swatch.color }};"
+                      for="value-{{ value.id }}-{{ product.id }}-{{ section.id }}"
+                    >
+                      <span class="visually-hidden">{{ value }}</span>
+                    </label>
+                  </div>
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      <div class="flex flex-wrap {{ gap }} to-sm-flex-col quickview-selects">
+        {%- for option in product.options_with_values -%}
+          {%- unless option.name == 'Colour' -%}
+            <div
+              class="radio-option custom-select flex flex-col g-1 dropdown-style flex-1"
+              data-option="{{ forloop.index }}"
+            >
+              {%- unless card -%}
+                <div class="option-name bold to-sm-hidden flex flex-between">
+                  <span>
+                    {{- option.name -}}
+                    :</span
+                  >
+                  <span variant-colour-name></span>
+                  {%- if option.name == 'Size'
+                    and card != true
+                    and settings.size_guide_page != blank
+                  -%}
+                    {% comment %} <a href="" class="size-guide" style="font-weight: 500">{{ 'products.product.size_guide' | t }}</a> {% endcomment %}
+                    <button
+                      type="button"
+                      data-modal-trigger="size-guide-id"
+                      class="medium underline"
+                    >
+                      {{ 'products.product.size_guide' | t }}
+                    </button>
+                  {%- endif -%}
+                </div>
+              {%- endunless -%}
+              <div class="custom-dropdown relative">
+                <button
+                  type="button"
+                  class="dropdown-toggle flex flex-between align-center w-100 cursor-pointer p-1"
+                  style=" border: 1px solid var(--brand-color-5);border-radius: 100px;background: #FFF;"
+                  data-option="{{ forloop.index }}"
+                >
+                  <div class="selected-option">
+                    {%- liquid
+                      assign selected_value = option.values.first
+                      assign option_index = forloop.index0
+                      assign selected_option_value = product.selected_or_first_available_variant.options[option_index]
+                      if selected_option_value
+                        assign selected_value = selected_option_value
+                      endif
+                    -%}
+                    <span class="bold {% unless card %}hidden{% endunless %} to-sm-inline-flex custom-select-option-name">
+                      {{- option.name }}:</span
+                    >
+                    <span class="selected-text">{{ selected_value }}</span>
+                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="8"
+                    viewBox="0 0 15 8"
+                    fill="none"
+                  >
+                    <path d="M13.6508 0.658905L7.26097 7.46851L0.871094 0.658905" stroke="var(--brand-color-2)" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                <div
+                  class="dropdown-options absolute w-100 hidden border-radius shadow overflow-auto"
+                  style=" z-index: 1000; border: 1px solid var(--brand-color-5, #1D1D1D); border-top: none; border-radius: 0 0 5px 5px;background: #FBFBFB;"
+                >
+                  {%- for value in option.values -%}
+                    <div class="variant-wrapper relative">
+                      {%- liquid
+                        assign is_selected = false
+                        # Check if this option value matches the selected variant's option
+                        assign option_index = forloop.parentloop.index0
+                        if product.selected_or_first_available_variant.options[option_index] == value
+                          assign is_selected = true
+                        endif
+                      -%}
+                      <input
+                        class="visually-hidden"
+                        type="radio"
+                        name="{{ option.name | escape }}-{{ product.id }}-{{ section.id }}"
+                        value="{{ value | escape }}"
+                        data-index="{{ forloop.index0 }}"
+                        data-value="{{ value | escape | downcase }}"
+                        id="{{ option.name | escape }}-{{ value | escape }}-{{ product.id }}-{{ section.id }}"
+                        {% if is_selected %}
+                          checked
+                        {% endif %}
+                      >
+                      <label
+                        class="cursor-pointer w-100 block p-1 dropdown"
+                        for="{{ option.name | escape }}-{{ value | escape }}-{{ product.id }}-{{ section.id }}"
+                      >
+                        <span class="bold">{{ option.name }}:</span> {{ value }}
+                      </label>
+                    </div>
+                  {%- endfor -%}
+                </div>
+              </div>
+            </div>
+          {%- endunless -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    <!-- Master Variant selector -->
+    <select class="hidden" name="id" id="product-id-{{ section_id }}-{{ product.id }}">
+      {%- for variant in product.variants -%}
+        <option
+          value="{{ variant.id }}"
+          data-price="{{ variant.price }}"
+          data-inventory-quantity="{{ variant.inventory_quantity }}"
+          data-inventory-management="{{ variant.inventory_management }}"
+          data-inventory-policy="{{ variant.inventory_policy  }}"
+          data-availability="{{ variant.available }}"
+          {% if variant.id == product.selected_or_first_available_variant.id %}
+            selected
+          {% endif %}
+        >
+          {{ variant.title }}
+        </option>
+      {%- endfor -%}
+    </select>
+  </div>
+{%- else -%}
+  <input
+    type="hidden"
+    variant-price
+    data-price="{{ product.selected_or_first_available_variant.price }}"
+    id="product-id-{{ section_id }}-{{ product.id }}"
+    name="id"
+    value="{{ product.selected_or_first_available_variant.id }}"
+  >
+{%- endunless -%}
+
+{%- stylesheet -%}
+  .variant-selector-wrapper .variant-wrapper label:not(.dropdown) {
+    border: 1px solid var(--Black, #1d1d1d);
+    border-radius: 5000px;
+    background: #fbfbfb;
+  }
+
+  /* .variant-selector-wrapper .select-wrapper select {
+  border: none;
+  min-width: 103px;
+  background-color: #f0f0f0;
+  padding: 0px 8px;
+  height: 30px;
+} */
+
+  .variant-selector-wrapper
+    .option-radios-wrapper
+    .radio-option:not(.swatch-radio)
+    .variant-radios
+    .variant-wrapper
+    input:checked
+    + label {
+    border: 1px solid var(--brand-color-2);
+    background-color: var(--brand-color-2);
+    color: var(--text-color-alternate);
+  }
+
+  .variant-selector-wrapper
+    .option-radios-wrapper
+    .radio-option
+    .variant-radios
+    .variant-wrapper
+    input:hover:not(:checked)
+    + label {
+    filter: brightness(0.9);
+  }
+
+  .variant-selector-wrapper
+    .option-radios-wrapper
+    .radio-option:not(.swatch-radio)
+    .variant-radios
+    .variant-wrapper
+    label {
+    display: block;
+    min-width: 80px;
+    padding: 10px;
+    color: var(--text-color);
+    text-align: center;
+
+    /* background-color: var(--text-color-secondary); */
+    transition: all 0.3s;
+  }
+
+  /* Hide Shopify generated selects */
+  .variant-selector-wrapper .selector-wrapper {
+    display: none;
+  }
+
+  /* Out of stock and unavailable option styles */
+  .variant-selector-wrapper
+    .option-radios-wrapper
+    .radio-option
+    .variant-radios
+    .variant-wrapper.out-of-stock
+    label {
+    position: relative;
+    border-color: var(--brand-color-6);
+    overflow: hidden;
+    background-color: var(--brand-color-5);
+    color: var(--brand-color-6);
+  }
+
+  .variant-selector-wrapper
+    .option-radios-wrapper
+    .radio-option
+    .variant-radios
+    .variant-wrapper.out-of-stock
+    label::after {
+    position: absolute;
+    top: 50%;
+    right: 10%;
+    left: 10%;
+    width: 100%;
+    height: 1px;
+    background-color: var(--brand-color-6);
+    content: '';
+    transform: rotate(159deg);
+  }
+
+  .variant-selector-wrapper
+    .option-radios-wrapper
+    .radio-option
+    .variant-radios
+    .variant-wrapper.unavailable-combination
+    label {
+    border-color: #e0e0e0;
+    background-color: #f8f8f8;
+    color: #ccc;
+    opacity: 0.5;
+  }
+
+  .variant-selector-wrapper
+    .option-radios-wrapper
+    .radio-option
+    .variant-radios
+    .variant-wrapper.out-of-stock
+    input:hover
+    + label,
+  .variant-selector-wrapper
+    .option-radios-wrapper
+    .radio-option
+    .variant-radios
+    .variant-wrapper.unavailable-combination
+    input:hover
+    + label {
+    filter: none;
+  }
+
+  .variant-selector-wrapper
+    .option-radios-wrapper
+    .radio-option
+    .variant-radios
+    .variant-wrapper.out-of-stock
+    input,
+  .variant-selector-wrapper
+    .option-radios-wrapper
+    .radio-option
+    .variant-radios
+    .variant-wrapper.unavailable-combination
+    input {
+    pointer-events: none;
+  }
+
+  /* Select dropdown out of stock styles */
+  .variant-selector-wrapper .select-wrapper select option.out-of-stock,
+  .variant-selector-wrapper .select-wrapper select option.unavailable-combination {
+    background-color: #f5f5f5;
+    color: #999;
+  }
+
+  /* .variant-selector-wrapper .select-wrapper select option.out-of-stock::after {
+  content: ' (Out of Stock)';
+}
+
+.variant-selector-wrapper .select-wrapper select option.unavailable-combination::after {
+  content: ' (Unavailable)';
+} */
+
+  .variant-selector-wrapper .swatch .variant-wrapper {
+    padding: 2px;
+  }
+
+  .variant-selector-wrapper .swatch .variant-wrapper label {
+    border: 2px solid var(--body-background-color);
+  }
+  .variant-selector-wrapper .swatch input:checked + label {
+    outline: 2px solid var(--brand-color-2);
+  }
+
+  /* Custom Dropdown Styles - Minimal overrides to utility classes */
+  .variant-selector-wrapper .dropdown-style .custom-dropdown {
+    z-index: 10;
+  }
+
+  .variant-selector-wrapper .dropdown-style .custom-dropdown.dropdown-open {
+    z-index: 1000;
+  }
+
+  .variant-selector-wrapper .dropdown-style .dropdown-toggle {
+    transition: all 0.3s ease;
+  }
+
+  .variant-selector-wrapper .dropdown-style .dropdown-toggle:hover {
+    filter: brightness(0.95);
+  }
+
+  .variant-selector-wrapper .dropdown-style .dropdown-toggle.open {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .variant-selector-wrapper .dropdown-style .dropdown-toggle svg {
+    transition: transform 0.3s ease;
+  }
+
+  .variant-selector-wrapper .dropdown-style .dropdown-toggle.open svg {
+    transform: rotateX(180deg);
+  }
+
+  .variant-selector-wrapper .dropdown-style .dropdown-options {
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    max-height: 200px;
+  }
+
+  .variant-selector-wrapper .dropdown-style .dropdown-options.open {
+    z-index: 1001 !important;
+    display: block !important;
+  }
+
+  .variant-selector-wrapper .dropdown-style .dropdown-options .variant-wrapper {
+    border-bottom: 1px solid #eee;
+  }
+
+  .variant-selector-wrapper .dropdown-style .dropdown-options .variant-wrapper:last-child {
+    border-bottom: none;
+  }
+
+  .variant-selector-wrapper .dropdown-style .dropdown-options .variant-wrapper label {
+    margin: 0;
+    transition: background-color 0.2s ease;
+  }
+
+  .variant-selector-wrapper .dropdown-style .dropdown-options .variant-wrapper:hover label {
+    background-color: #f0f0f0;
+  }
+
+  .variant-selector-wrapper
+    .dropdown-style
+    .dropdown-options
+    .variant-wrapper
+    input:checked
+    + label {
+    background-color: var(--brand-color-2);
+    color: var(--text-color-alternate);
+  }
+
+  /* Out of stock styles for custom dropdown */
+  .variant-selector-wrapper .dropdown-style .dropdown-options .variant-wrapper.out-of-stock label {
+    position: relative;
+    background-color: #f5f5f5;
+    color: #999;
+  }
+
+  .variant-selector-wrapper
+    .dropdown-style
+    .dropdown-options
+    .variant-wrapper.out-of-stock
+    label::after {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    left: 12px;
+    height: 1px;
+    background-color: #999;
+    content: '';
+    transform: translateY(-50%);
+  }
+
+  .variant-selector-wrapper
+    .dropdown-style
+    .dropdown-options
+    .variant-wrapper.unavailable-combination
+    label {
+    background-color: #f8f8f8;
+    color: #ccc;
+    opacity: 0.5;
+  }
+
+  .variant-selector-wrapper .dropdown-style .dropdown-options .variant-wrapper.out-of-stock input,
+  .variant-selector-wrapper
+    .dropdown-style
+    .dropdown-options
+    .variant-wrapper.unavailable-combination
+    input {
+    pointer-events: none;
+  }
+
+  .variant-selector-wrapper .color-dropdown:empty {
+    display: none;
+  }
+
+  @media only screen and (min-width: 768px) {
+    #main-product-container .variant-selector-wrapper .radio-option:not(.type-radio) {
+      max-width: 50%;
+    }
+  }
+{%- endstylesheet -%}

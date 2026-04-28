@@ -1,0 +1,343 @@
+{%- liquid
+  # CONTENT
+  assign lazy_load = section.settings.lazy_load
+  assign cta_metaobject = section.settings.cta_metaobject
+  assign image = cta_metaobject.image
+  assign bg_color = cta_metaobject.background_colour
+  assign text_color = cta_metaobject.text_color
+  assign heading = cta_metaobject.heading
+  assign text = cta_metaobject.text | metafield_tag
+  assign link = cta_metaobject.product_link.value.url | default: cta_metaobject.collection_link.value.url | default: cta_metaobject.page_link.value.url | default: cta_metaobject.other_link
+  assign link_text = cta_metaobject.link_text
+  assign link_label = cta_metaobject.link_label
+  assign button_style = cta_metaobject.link_style | remove: 'Theme Style '
+  assign secondary_link = cta_metaobject.secondary_product_link.value.url | default: cta_metaobject.secondary_collection_link.value.url | default: cta_metaobject.secondary_page_link.value.url | default: cta_metaobject.secondary_other_link
+  assign secondary_link_text = cta_metaobject.secondary_link_text
+  assign secondary_link_label = cta_metaobject.secondary_link_label
+  assign secondary_button_style = cta_metaobject.secondary_link_style | remove: 'Theme Style '
+
+  # STYLING
+  assign overlay_type = section.settings.overlay_type
+  assign overlay_styling = section.settings.overlay_styling
+  assign overlay_background = section.settings.overlay_color
+
+  # LAYOUT
+  assign vertical_spacing = section.settings.vertical_spacing
+  assign custom_spacing = section.settings.custom_spacing
+  assign top_spacing = section.settings.top_spacing
+  assign bottom_spacing = section.settings.bottom_spacing
+  assign top_spacing_mobile = section.settings.top_spacing_mobile
+  assign bottom_spacing_mobile = section.settings.bottom_spacing_mobile
+  assign page_width = section.settings.page_width
+  assign text_alignment = section.settings.text_alignment
+  assign content_alignment = section.settings.content_alignment
+-%}
+
+<div class="{{ page_width }}">
+  <div
+    class="{% unless custom_spacing %}{{ vertical_spacing }}{% else %}custom-spacing{% endunless %} cta-banner-wrapper relative overflow-hidden isolate container-v-padding"
+    style="
+      {%- if custom_spacing -%}
+        {%- if vertical_spacing == 'vertical-padding' -%}
+          padding-top: {{ top_spacing }}px; padding-bottom: {{ bottom_spacing }}px;--mobile-padding-top: {{ top_spacing_mobile }}px; --mobile-padding-bottom: {{ bottom_spacing_mobile }}px;
+        {%- elsif vertical_spacing == 'vertical-margin' -%}
+          margin-top: {{ top_spacing }}px; margin-bottom: {{ bottom_spacing }}px;--mobile-margin-top: {{ top_spacing_mobile }}px; --mobile-margin-bottom: {{ bottom_spacing_mobile }}px;
+        {%- elsif vertical_spacing == 'vertical-margin vertical-padding' -%}
+          padding-top: {{ top_spacing }}px; padding-bottom: {{ bottom_spacing }}px; margin-top: {{ top_spacing }}px; margin-bottom: {{ bottom_spacing }}px; --mobile-padding-top: {{ top_spacing_mobile }}px; --mobile-padding-bottom: {{ bottom_spacing_mobile }}px; --mobile-margin-top: {{ top_spacing_mobile }}px; --mobile-margin-bottom: {{ bottom_spacing_mobile }}px;
+        {%- endif -%}
+      {%- endif -%}
+    "
+  >
+    {%- if image != blank -%}
+      <div class="absolute inset-0 w-100 h-100 z-0">
+        {%- unless overlay_type == 'none' -%}
+          <div
+            class="absolute inset-0 h-100 w-100 overlay {% if overlay_styling == 'primary' %}gradient-bg{% elsif overlay_styling == 'secondary' %}gradient-bg-alt{% endif %}"
+            {% if section.settings.overlay_type == 'custom' %}
+              style="background: {{ overlay_background }};"
+            {% endif %}
+          ></div>
+        {%- endunless -%}
+        {%- render 'image',
+          image: image,
+          max_width: 2000,
+          use_placeholder: true,
+          lazy: lazy_load,
+          class: 'object-cover'
+        -%}
+      </div>
+    {%- endif -%}
+    {%- if cta_metaobject == blank -%}
+      <h2 class="heading-h2 text-center">Please select a CTA Banner.</h2>
+    {%- else -%}
+      <div class="grid-section">
+        <div
+          class="cta-content p-4 flex flex-col z-1 relative g-3 border-radius {{ content_alignment }} {{ text_alignment }}"
+          style="background: {{ bg_color }}; color: {{ text_color }};"
+        >
+          {%- if heading != blank %}
+            <h2 class="heading-h1 heading mb-0">{{ heading }}</h2>
+          {%- endif -%}
+          {%- if text != blank %}
+            {{ text }}
+          {%- endif -%}
+          <div class="flex flex-center g-2{% if text_alignment == 'text-left' %} flex-start{% elsif text_alignment == 'text-right' %} flex-end{% else %} flex-center{% endif %} to-sm-flex-wrap">
+            {%- if link != blank and link_text != blank %}
+              <a
+                href="{{ link }}"
+                class="button-{{ button_style }}"
+                {%- if link_label != blank %}
+                  aria-label="{{ link_label }}"
+                {% endif %}
+              >
+                {{- link_text -}}
+              </a>
+            {%- endif -%}
+            {%- if secondary_link != blank and secondary_link_text != blank %}
+              <a
+                href="{{ secondary_link }}"
+                class="button-{{ secondary_button_style }}"
+                {%- if secondary_link_label != blank %}
+                  aria-label="{{ secondary_link_label }}"
+                {% endif %}
+              >
+                {{- secondary_link_text -}}
+              </a>
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "CTA Banner",
+  "tag": "section",
+  "class": "cta-banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "metaobject",
+      "id": "cta_metaobject",
+      "label": "CTA Banner",
+      "metaobject_type": "cta_banner"
+    },
+    {
+      "type": "checkbox",
+      "id": "lazy_load",
+      "label": "Lazy Load",
+      "default": true,
+      "info": "If enabled, image will load as it enters the viewport. Recommended for performance."
+    },
+    {
+      "type": "header",
+      "content": "Styling"
+    },
+    {
+      "type": "select",
+      "id": "overlay_type",
+      "label": "Overlay Type",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "theme",
+          "label": "Theme"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "select",
+      "id": "overlay_styling",
+      "label": "Overlay Style",
+      "options": [
+        {
+          "value": "primary",
+          "label": "Primary"
+        },
+        {
+          "value": "secondary",
+          "label": "Secondary"
+        },
+        {
+          "value": "third",
+          "label": "Third"
+        }
+      ],
+      "default": "primary",
+      "visible_if": "{{ section.settings.overlay_type == 'theme' }}"
+    },
+    {
+      "type": "color_background",
+      "id": "overlay_color",
+      "label": "Overlay Colour",
+      "default": "linear-gradient(#ffffff, #ffffff)",
+      "visible_if": "{{ section.settings.overlay_type == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Content Alignment",
+      "options": [
+        {
+          "value": "span-6",
+          "label": "Left"
+        },
+        {
+          "value": "span-center-6",
+          "label": "Centre"
+        },
+        {
+          "value": "span-end-6",
+          "label": "Right"
+        }
+      ],
+      "default": "span-center-6"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "options": [
+        {
+          "value": "text-left",
+          "label": "Left"
+        },
+        {
+          "value": "text-center",
+          "label": "Centre"
+        },
+        {
+          "value": "text-right",
+          "label": "Right"
+        }
+      ],
+      "default": "text-center"
+    },
+    {
+      "type": "select",
+      "id": "page_width",
+      "label": "Page Width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "Default"
+        },
+        {
+          "value": "page-width--narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "page-width--wide",
+          "label": "Wide"
+        },
+        {
+          "value": "page-width--full",
+          "label": "Full"
+        }
+      ],
+      "default": "page-width--full"
+    },
+    {
+      "type": "select",
+      "id": "vertical_spacing",
+      "label": "Vertical Spacing",
+      "options": [
+        {
+          "value": "vertical-margin",
+          "label": "Margin"
+        },
+        {
+          "value": "vertical-padding",
+          "label": "Padding"
+        },
+        {
+          "value": "vertical-margin vertical-padding",
+          "label": "Margin and Padding"
+        },
+        {
+          "value": "",
+          "label": "None"
+        }
+      ],
+      "default": "vertical-margin",
+      "info": "This uses the global spacing settings from the theme settings to ensure consistent spacing between sections. If you want to use custom spacing, please check the 'Custom Spacing' option."
+    },
+    {
+      "type": "checkbox",
+      "id": "custom_spacing",
+      "label": "Custom Spacing",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "top_spacing",
+      "label": "Top Spacing",
+      "min": 0,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "default": 120,
+      "visible_if": "{{ section.settings.custom_spacing == true }}"
+    },
+    {
+      "type": "range",
+      "id": "bottom_spacing",
+      "label": "Bottom Spacing",
+      "min": 0,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "default": 120,
+      "visible_if": "{{ section.settings.custom_spacing == true }}"
+    },
+    {
+      "type": "range",
+      "id": "top_spacing_mobile",
+      "label": "Mobile Top Spacing",
+      "min": 0,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "default": 60,
+      "visible_if": "{{ section.settings.custom_spacing == true }}"
+    },
+    {
+      "type": "range",
+      "id": "bottom_spacing_mobile",
+      "label": "Mobile Bottom Spacing",
+      "min": 0,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "default": 60,
+      "visible_if": "{{ section.settings.custom_spacing == true }}"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["*"]
+  },
+  "presets": [
+    {
+      "name": "CTA Banner",
+      "category": "Content"
+    }
+  ]
+}
+{% endschema %}

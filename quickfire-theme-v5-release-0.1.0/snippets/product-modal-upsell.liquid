@@ -1,0 +1,148 @@
+{%- liquid
+  assign meta = product.metafields.product_data.upsell_product
+  assign cta = meta.value.cta_card.value
+  assign prods = meta.value.products.value
+-%}
+
+{%- if prods != blank -%}
+  <div
+    data-has-default-variant="{{ product.has_only_default_variant }}"
+    class="product-modal-upsell-wrapper fixed inset-0 flex flex-end overflow-hidden w-100"
+    style="z-index: 9999; display:none;"
+    data-modal="product-modal-upsell"
+  >
+    <product-modal-upsell-inner
+      class="content relative p-5 flex"
+      style="width: 100%; max-width: 360px; overflow-y: auto;background-color: var(--body-background-color);"
+    >
+      <button
+        class="close modal-close absolute top-0 right-0 cursor-pointer p-1 m-1 border-radius-circle"
+        style="z-index: 2;"
+        aria-label="Close full kit"
+        data-modal-close="product-modal-upsell"
+        close-product-modal-upsell
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="17"
+          viewBox="0 0 18 17"
+          fill="none"
+        >
+          <line x1="0.5" y1="-0.5" x2="23.8283" y2="-0.5" transform="matrix(0.710634 -0.703562 0.712204 0.701973 1.125 17.6554)" stroke="#1D1D1D" stroke-linecap="round"/>
+          <line x1="0.5" y1="-0.5" x2="24.7378" y2="-0.5" transform="matrix(-0.745937 -0.666016 0.675047 -0.737775 19.293 16.8087)" stroke="#1D1D1D" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="modal-body w-100 pl-4 pr-4 flex flex-col g-5" style="z-index: 1;">
+        <div class="product-modal-upsell-grid grid-section w-100">
+          <div class="cta span-4">
+            {%- render 'cta-card', cta: cta -%}
+          </div>
+          {%- for prod in prods -%}
+            {%- if prod.available -%}
+              <div class="variant-card-container span-4">
+                {%- render 'variant-card', prod: prod -%}
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+        <div class="button-container flex-center align-center g-3 flex-wrap">
+          <button class="button-5 add--to-cart flex-center align-center pl-5 pr-5">
+            {% render 'icon-cart', svg_width: '16', svg_height: '18' %}
+            <span class="ml-1">{{ 'products.product.add_both_to_cart' | t }}</span>
+          </button>
+          <button class="button-2 continue pl-5 pr-5">
+            {{ 'products.product.no_thanks' | t }}
+          </button>
+        </div>
+      </div>
+    </product-modal-upsell-inner>
+  </div>
+
+  <script type="module" src="{{ 'product-modal-upsell.js' | asset_url }}" defer></script>
+{%- endif -%}
+
+{%- stylesheet -%}
+  .product-modal-upsell-wrapper {
+    display: flex;
+    background: rgb(0 0 0 / 80%);
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .product-modal-upsell-wrapper product-modal-upsell-inner {
+    max-width: 1065px !important;
+    margin: 90px auto 0 !important;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .product-modal-upsell-wrapper product-modal-upsell-inner {
+    transform: translateX(0);
+  }
+
+  .product-modal-upsell-wrapper product-modal-upsell-inner .cta .cta {
+    height: 100%;
+  }
+
+  .product-modal-upsell-wrapper product-modal-upsell-inner .add--to-cart svg {
+    margin-bottom: -5px;
+  }
+
+  .product-modal-upsell-wrapper button svg {
+    pointer-events: none;
+  }
+
+  .product-modal-upsell-wrapper button.continue:not(:hover) {
+    border-color: var(--text-color);
+  }
+
+  .product-modal-upsell-wrapper button.continue:hover {
+    padding: 7px 40px 12px;
+    border-width: 1px;
+  }
+
+  .product-modal-upsell-wrapper product-modal-upsell-inner .variant-selector-wrapper .option-name {
+    display: none;
+  }
+
+  @media screen and (max-width: 767.98px) {
+    .product-modal-upsell-wrapper product-modal-upsell-inner .modal-body {
+      height: 70dvh;
+      padding: 0;
+      overflow-x: auto;
+    }
+
+    /* .product-modal-upsell-wrapper product-modal-upsell-inner .variant-card-container {
+            grid-column: span 3;
+        } */
+
+    .product-modal-upsell-wrapper product-modal-upsell-inner {
+      padding: var(--content-spacing-4) var(--content-spacing-2);
+    }
+  }
+
+  @media screen and (max-width: 767.98px) {
+    .product-modal-upsell-wrapper product-modal-upsell-inner {
+      margin-top: 50px !important;
+    }
+    .product-modal-upsell-wrapper product-modal-upsell-inner .modal-body {
+      height: 100dvh;
+      padding-bottom: 50px;
+    }
+    .product-modal-upsell-wrapper product-modal-upsell-inner .cta .cta img,
+    .product-modal-upsell-wrapper product-modal-upsell-inner .cta .cta .metafield-rich_text_field,
+    .product-modal-upsell-wrapper product-modal-upsell-inner .cta .cta a {
+      display: none;
+    }
+    .product-modal-upsell-wrapper product-modal-upsell-inner .cta .cta > div {
+      padding-bottom: 8px;
+      padding-left: 0;
+    }
+    .product-modal-upsell-wrapper product-modal-upsell-inner .cta .cta .heading-h2 {
+      color: var(--text-color);
+    }
+    .product-modal-upsell-wrapper product-modal-upsell-inner .variant-card-container {
+      grid-column: span 6;
+    }
+  }
+{%- endstylesheet -%}

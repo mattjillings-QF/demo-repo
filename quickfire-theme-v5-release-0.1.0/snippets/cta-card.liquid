@@ -1,0 +1,65 @@
+{%- liquid
+  assign cta_link = cta.collection_link.value.url | default: cta.product_link.value.url | default: cta.page_link.value.url | default: cta.url.value
+
+  assign lazy = true
+
+  if lazy_loading == false
+    assign lazy = false
+  endif
+-%}
+
+{%- unless cta == blank -%}
+  <div
+    class="cta flex align-end relative border-radius overflow-hidden h-100 {{ class }}"
+    style="order:{{ order }};{% unless custom_span %}grid-column: span {{ cta.collection_grid_size | default: 1 }};{% endunless %}"
+    {% if shopify_attributes != blank %}
+      {{ shopify_attributes }}
+    {% endif %}
+  >
+    {%- comment -%} Image with optional data-src for lazy loading {%- endcomment -%}
+
+    {%- assign image_data_src = '' -%}
+    {%- if use_data_src == true and cta.image != blank -%}
+      {%- assign image_data_src = cta.image | image_url: width: 700 -%}
+    {%- endif -%}
+
+    {%- if cta.image != blank -%}
+      {%- render 'image',
+        image: cta.image,
+        max_width: 700,
+        use_placeholder: false,
+        lazy: lazy,
+        class: 'object-cover absolute inset-0 z-0',
+        image_data_src: image_data_src,
+        context_text: cta.heading
+      -%}
+    {%- endif -%}
+
+    {%- if cta.show_overlay == true -%}
+      <div class="gradient-bg-alt absolute inset-0 z-0"></div>
+    {%- endif -%}
+
+    <div
+      class="flex flex-col g-2 relative z-10 pl-3 pr-3 pb-5"
+      style="color: {{ cta.text_colour | default: '#fff' }};"
+    >
+      {%- if cta.heading != blank -%}
+        <h3 class="heading-h2" style="margin-bottom:0;">{{- cta.heading -}}</h3>
+      {%- endif -%}
+
+      {%- if cta.text != blank -%}
+        <div>{{- cta.text | metafield_tag -}}</div>
+      {%- endif -%}
+
+      {%- if cta_link != blank and cta.link_text != blank -%}
+        <a
+          href="{{ cta_link }}"
+          class="button-1"
+          title="{% if cta.link_label != blank %}{{ cta.link_label }}{% else %}{{ cta.link_text }}{% endif %}"
+        >
+          {{- cta.link_text -}}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endunless -%}

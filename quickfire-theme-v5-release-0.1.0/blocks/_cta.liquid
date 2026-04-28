@@ -1,0 +1,31 @@
+{%- render 'cta-card',
+  cta: metaobjects.cta_card[block.settings.cta],
+  use_data_src: block.settings.in_mega_menu,
+  shopify_attributes: block.shopify_attributes
+-%}
+
+{% schema %}
+{
+  "name": "CTA",
+  "tag": null,
+  "settings": [
+    {
+      "type": "metaobject",
+      "id": "cta",
+      "label": "CTA Metaobject",
+      "metaobject_type": "cta_card"
+    },
+    {
+      "type": "checkbox",
+      "id": "in_mega_menu",
+      "label": "In Mega Menu",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "CTA"
+    }
+  ]
+}
+{% endschema %}

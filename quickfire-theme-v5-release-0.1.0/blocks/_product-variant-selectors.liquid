@@ -1,0 +1,50 @@
+{%- liquid
+  assign option_type = block.settings.option_select_type
+  assign additional_classes = ''
+  if block.settings.add_border_bottom
+    assign additional_classes = 'border-bottom pb-3'
+  endif
+-%}
+
+{%- render 'variant-selector',
+  product: product,
+  option_type: option_type,
+  additional_classes: additional_classes,
+  shopify_attributes: block.shopify_attributes
+-%}
+
+{% schema %}
+{
+  "name": "Variant Selectors",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "option_select_type",
+      "label": "Option Select Type",
+      "options": [
+        {
+          "value": "radio",
+          "label": "Radio"
+        },
+        {
+          "value": "select",
+          "label": "Select"
+        }
+      ],
+      "default": "radio"
+    },
+    {
+      "type": "checkbox",
+      "id": "add_border_bottom",
+      "label": "Add Border Bottom",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Variant Selectors"
+    }
+  ]
+}
+{% endschema %}

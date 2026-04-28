@@ -1,0 +1,253 @@
+{%- comment -%}
+  =======================================================
+  Line item property input
+
+  Cart.js looks for inputs with the class 'property' and add this as a key-value pair object to the add.js POST API call
+
+  Key is the input name
+  Value is the input value
+
+  <label for="test-line-item">Test line item</label>
+  <input class="property" type="text" name="property" value="" id="test-line-item">
+
+  These will display in the cart item
+
+  Key: Value
+
+  To hide from the cart item prepend an underscore to the input name
+  <label for="test-line-item">Test line item</label>
+  <input class="property" type="text" name="_property" value="" id="test-line-item">
+
+  =======================================================
+{%- endcomment -%}
+{% comment %}
+  <div class="line-item-properties">
+    <div>
+      <label for="test-line-item">Test line item</label><br>
+      <input class="property" type="text" name="property" value="" id="test-line-item">
+    </div>
+
+    <div>
+      <label for="test-hidden-line-item">Test hidden line item</label><br>
+      <input class="property" type="text" name="_hidden property" value="" id="test-hidden-line-item">
+    </div>
+  </div>
+{% endcomment %}
+
+{%- liquid
+  if add_to_cart_style == blank
+    assign add_to_cart_style = 'button-1'
+  endif
+
+  assign classes = 'product-submit-container flex flex-col g-2'
+  assign meta = product.metafields.product_data.upsell_product
+  assign prods = meta.value.products.value
+  assign available_prods = false
+
+  if prods != blank
+    for prod in prods
+      if prod.available
+        assign available_prods = true
+      endif
+    endfor
+    unless available_prods == false
+      assign classes = classes | append: ' with-upsell'
+    endunless
+  endif
+-%}
+
+{%- form 'product', product, class: classes, data-product-id: product.id -%}
+  <div
+    class="product-submit-container flex flex-col g-2 {{ additional_classes }}"
+    {{ shopify_attributes }}
+  >
+    <div class="product-submit-wrapper flex flex-between flex-wrap g-3 to-sm-flex-between to-sm-flex-wrap">
+      {%- if product.available -%}
+        {%- unless hide_quantity == true -%}
+          <div class="quantity-total-wrapper flex flex-between flex-wrap g-3">
+            <div class="quantity-wrapper flex flex-between">
+              {%- render 'quantity-selector', product: product -%}
+            </div>
+          </div>
+        {%- endunless -%}
+      {%- endif -%}
+
+      {% comment %} <input add-to-cart type="submit" class="button-1" value="{{- add_to_cart_text -}}"> {% endcomment %}
+      {%- unless product.has_only_default_variant -%}
+        <label class="{{ add_to_cart_style }} to-sm-w-100 flex align-center g-1" add-to-cart-label>
+          {%- render 'icon-cart', svg_width: '16', svg_height: '18' %}
+          <input
+            class="cursor-pointer w-max"
+            type="submit"
+            value="{{ 'products.product.add_to_cart' | t }}"
+            add-to-cart
+            aria-label="Add {{ product.title }} to the basket"
+            data-section-id="{{ section.id }}"
+            data-id="{{ product.selected_or_first_available_variant.id }}"
+            data-default-variant="{%- if product.has_only_default_variant -%}true{% endif %}"
+            data-product-handle="{{ product.handle }}"
+            data-quantity="1"
+            {%- unless product.available -%}
+              disabled
+            {% endunless %}
+          >
+          <span
+            data-variant-price-submit
+            data-price="{{ product.selected_or_first_available_variant.price }}"
+            >- {{ product.selected_or_first_available_variant.price | money -}}
+          </span>
+        </label>
+      {%- else -%}
+        {%- if product.available -%}
+          <label
+            class="{{ add_to_cart_style }} to-sm-w-100 flex align-center g-1"
+            add-to-cart-label
+          >
+            {%- render 'icon-cart', svg_width: '16', svg_height: '18' %}
+            <input
+              class="cursor-pointer w-max"
+              type="submit"
+              value="{{ 'products.product.add_to_cart' | t }}"
+              add-to-cart
+              aria-label="Add {{ product.title }} to the basket"
+              data-section-id="{{ section.id }}"
+              data-id="{{ product.selected_or_first_available_variant.id }}"
+              data-default-variant="{%- if product.has_only_default_variant -%}true{% endif %}"
+              data-product-handle="{{ product.handle }}"
+              data-quantity="1"
+              {%- unless product.available -%}
+                disabled
+              {% endunless %}
+            >
+            <span
+              data-variant-price-submit
+              data-price="{{ product.selected_or_first_available_variant.price }}"
+              >- {{ product.selected_or_first_available_variant.price | money -}}
+            </span>
+          </label>
+        {%- else -%}
+          <label
+            class="{{ add_to_cart_style }} disabled to-sm-w-100 flex align-center g-1"
+            add-to-cart-label
+          >
+            <input
+              class="cursor-pointer w-max"
+              type="submit"
+              value="{{ 'products.product.sold_out' | t }}"
+              add-to-cart
+              aria-label="Sold out disabled button"
+              data-section-id="{{ section.id }}"
+              data-id="{{ product.selected_or_first_available_variant.id }}"
+              data-default-variant="{%- if product.has_only_default_variant -%}true{% endif %}"
+              data-product-handle="{{ product.handle }}"
+              data-quantity="1"
+              disabled
+            >
+          </label>
+        {%- endif -%}
+      {%- endunless -%}
+
+      {%- comment -%} Wishlist button {%- endcomment -%}
+
+      {%- unless hide_wishlist_button -%}
+        <div class="wishlist-container flex align-center">
+          {%- render 'wishlist-button', product: product, wishlist_icon: 'outline' -%}
+        </div>
+      {%- endunless -%}
+    </div>
+    {%- unless card -%}
+      {%- if shop.metafields.stock.low_stock_trigger != blank
+        and shop.metafields.stock.low_stock_trigger > 0
+        and product.available
+      -%}
+        <div low-stock-container class="flex flex-center g-2 align-center w-100 text-center w-100">
+          {%- for variant in product.variants -%}
+            {%- if variant.inventory_quantity <= shop.metafields.stock.low_stock_trigger
+              and variant.inventory_quantity != 0
+              and variant.inventory_management == 'shopify'
+            -%}
+              <div
+                class="low-stock-icon flex border-radius-circle relative"
+                low-stock-icon
+                style="width:15px;height:15px;background:var(--brand-color-2);"
+              ></div>
+              <span data-variant-id="{{ variant.id }}" low-stock-number>
+                {{-
+                  'products.product.only_left'
+                  | t: inventory_quantity: variant.inventory_quantity
+                -}}
+              </span>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    {%- endunless -%}
+  </div>
+{%- endform -%}
+
+{%- if product.has_only_default_variant == false and product.available and card != true -%}
+  {%- render 'klaviyo-bis-form', product: product -%}
+{%- endif -%}
+
+{%- stylesheet -%}
+  @media only screen and (min-width: 768px) {
+    .product-submit-wrapper label {
+      flex: 1;
+    }
+  }
+
+  .product-submit-wrapper label {
+    border-color: var(--brand-color-3);
+    background-color: var(--brand-color-3);
+  }
+
+  .product-submit-wrapper label svg {
+    position: relative;
+    top: 2px;
+  }
+
+  .product-submit-wrapper label input {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--text--color-secondary);
+    font-size: 16px;
+  }
+
+  .product-submit-wrapper label input:focus-visible,
+  .product-submit-wrapper label input:focus {
+    outline: none;
+  }
+
+  .product-submit-wrapper label.disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
+  }
+
+  .product-submit-wrapper label.disabled input:disabled {
+    pointer-events: none;
+  }
+
+  .product-submit-wrapper label.disabled svg {
+    display: none;
+  }
+
+  .product-submit-container .low-stock-icon {
+    outline: 4px solid #0003;
+  }
+
+  @media only screen and (max-width: 767.98px) {
+    .product-submit-wrapper .quantity-total-wrapper {
+      order: 1;
+    }
+    .product-submit-wrapper label {
+      order: 3;
+    }
+    .product-submit-wrapper .wishlist-container {
+      order: 2;
+    }
+  }
+
+  /* s */
+{%- endstylesheet -%}

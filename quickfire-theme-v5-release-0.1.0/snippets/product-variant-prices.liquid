@@ -1,0 +1,113 @@
+<div class="variant-prices-container">
+  {%- if product.has_only_default_variant -%}
+    {%- if product.compare_at_price > product.price -%}
+      <span class="{% unless card %}large-body-text{% endunless %} bold">
+        {{- product.price | money -}}
+      </span>
+      <span
+        class="{% unless card %}large-body-text{% endunless %}"
+        style="text-decoration:line-through;opacity: 0.7"
+      >
+        {{- product.compare_at_price | money -}}
+      </span>
+    {%- else -%}
+      <span class="{% unless card %}large-body-text{% endunless %} bold">
+        {{- product.price | money -}}
+      </span>
+    {%- endif -%}
+  {%- else -%}
+    {%- case price_format -%}
+      {%- when 'variant_price' -%}
+        {%- for variant in product.variants -%}
+          <div
+            variant-price
+            class="variant-price-wrapper {% if variant.id != product.selected_or_first_available_variant.id %} hidden {% endif %}"
+            data-price="{{ variant.price }}"
+            data-variant-id="{{ variant.id }}"
+          >
+            {%- if variant.compare_at_price > variant.price -%}
+              <span class="{% unless card %}large-body-text{% endunless %} bold">
+                {{- variant.price | money -}}
+              </span>
+              <span
+                class="{% unless card %}large-body-text{% endunless %}"
+                style="text-decoration:line-through;opacity: 0.7"
+              >
+                {{- variant.compare_at_price | money -}}
+              </span>
+            {%- else -%}
+              <span class="{% unless card %}large-body-text{% endunless %} bold">
+                {{- variant.price | money -}}
+              </span>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      {%- when 'from' -%}
+        {%- if product.price_varies == false -%}
+          <div class="variant-price-wrapper">
+            {%- if product.compare_at_price > product.price -%}
+              <span class="{% unless card %}large-body-text{% endunless %} bold">
+                {{- product.price | money -}}
+              </span>
+              <span
+                class="{% unless card %}large-body-text{% endunless %}"
+                style="text-decoration:line-through;opacity: 0.7"
+              >
+                {{- product.compare_at_price | money -}}
+              </span>
+            {%- else -%}
+              <span class="{% unless card %}large-body-text{% endunless %} bold">
+                {{- product.price | money -}}
+              </span>
+            {%- endif -%}
+          </div>
+        {%- else -%}
+          <div class="variant-price-wrapper">
+            <span class="product-price {% unless card %}large-body-text{% endunless %} bold"
+              ><span class="regular">{{ 'products.product.from' | t }}</span>
+              {{ product.price_min | money }}
+              {% if product.compare_at_price_min != 0 -%}
+                {%- if product.price_min < product.compare_at_price_min -%}
+                  &nbsp;<span style="text-decoration:line-through;opacity: 0.7">
+                    {{- product.compare_at_price_min | money -}}
+                  </span>
+                {%- endif -%}
+              {%- endif -%}
+            </span>
+          </div>
+        {%- endif -%}
+      {%- when 'range' -%}
+        {%- if product.price_varies == false -%}
+          <div class="variant-price-wrapper">
+            {%- if product.compare_at_price > product.price -%}
+              <span class="{% unless card %}large-body-text{% endunless %} bold">
+                {{- product.price | money -}}
+              </span>
+              <span
+                class="{% unless card %}large-body-text{% endunless %}"
+                style="text-decoration:line-through;opacity: 0.7"
+              >
+                {{- product.compare_at_price | money -}}
+              </span>
+            {%- else -%}
+              <span class="{% unless card %}large-body-text{% endunless %} bold">
+                {{- product.price | money -}}
+              </span>
+            {%- endif -%}
+          </div>
+        {%- else -%}
+          <div class="variant-price-wrapper">
+            <span class="product-price {% unless card %}large-body-text{% endunless %} bold">
+              {{- product.price_min | money }} - {{ product.price_max | money -}}
+            </span>
+          </div>
+        {%- endif -%}
+    {%- endcase -%}
+  {%- endif %}
+</div>
+
+{% stylesheet %}
+  .variant-prices-container .large-body-text {
+    font-size: 18px;
+  }
+{% endstylesheet %}

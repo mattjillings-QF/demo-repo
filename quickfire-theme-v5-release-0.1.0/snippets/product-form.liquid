@@ -1,0 +1,32 @@
+{%- liquid
+  # Locales
+  assign add_to_cart_text = 'products.product.add_to_cart' | t | default: 'Add to cart'
+  assign sold_out_text = 'products.product.sold_out' | t | default: 'Sold out'
+  assign unavailable_text = 'products.product.unavailable' | t | default: 'Unavailable'
+
+  assign gap = gap | default: 'g-3'
+-%}
+<product-form
+  class="product-form flex flex-col {{ gap }}"
+  data-section-id="{{ section_id }}"
+  data-product-handle="{{ product.handle }}"
+  data-add-to-cart="{{ add_to_cart_text }}"
+  data-sold-out="{{ sold_out_text }}"
+  data-unavailable="{{ unavailable_text }}"
+  data-money-format="{{ shop.money_format }}"
+  data-product-json="{{ product | json | escape }}"
+  {%- if enable_history -%}
+    data-enable-history="true"
+  {%- endif -%}
+>
+  {{ content }}
+</product-form>
+
+{%- stylesheet -%}
+  .product-details .border-bottom {
+    border-bottom: 1px solid var(--brand-color-5);
+  }
+  .product-details .accordion:first-of-type {
+    padding-top: 0;
+  }
+{%- endstylesheet -%}
